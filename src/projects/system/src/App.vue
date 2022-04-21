@@ -39,16 +39,13 @@ const jumpUrl = (item: ProjectConfig) => {
 </template>
 
 <style lang="scss" scoped>
-@mixin flex-center {
+.app-list {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-.app-list {
-  @include flex-center;
   gap: 20px;
   .app-item {
-    @include flex-center;
+    @extend .app-list;
     width: 200px;
     height: 200px;
     background-color: #ccc;
