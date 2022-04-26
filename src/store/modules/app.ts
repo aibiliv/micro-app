@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-undef
 console.log("PROJECT_CONFIG", PROJECT_CONFIG);
 
 const state = {

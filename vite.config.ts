@@ -66,7 +66,8 @@ export default defineConfig(({ command, mode }) => {
       exclude: ["__INDEX__"], // 排除 __INDEX__
     },
     server: {
-      open: "/",
+      open: projectName === "system" ? "/" : false,
+      // open: "/",
       port,
     },
   };

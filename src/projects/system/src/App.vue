@@ -1,4 +1,26 @@
 <script setup lang="ts">
+import { ref, computed } from "vue";
+import { useStore } from "vuex";
+
+const store = useStore();
+let userName = computed(() => {
+  return store.state.user.username;
+});
+
+const changeName = () => {
+  let count = store.state.user.username;
+  count++;
+
+  store.commit("user/SET_USERNAME", count);
+};
+window.addEventListener(
+  "message",
+  (event) => {
+    store.commit("user/SET_USERNAME", event.data);
+  },
+  false
+);
+//子应用跳转
 type ProjectConfig = {
   id: number;
   name: string;
@@ -21,11 +43,36 @@ const appList: ProjectConfig[] = [
   },
 ];
 const jumpUrl = (item: ProjectConfig) => {
-  window.location.href = item.pathUrl;
+  // window.open(item.pathUrl, "_self");
+
+  let iframe = document.createElement("iframe");
+  iframe.id = "myIframe";
+  iframe.src = item.pathUrl;
+  iframe.style.display = "none";
+  const app = document.getElementById("app");
+  app.appendChild(iframe);
+  let myIframe = document.getElementById("myIframe");
+  myIframe &&
+    myIframe.addEventListener(
+      "load",
+      function () {
+        let data = userName.value;
+        myIframe && myIframe.contentWindow.postMessage(data, item.pathUrl);
+        setTimeout(() => {
+          window.open(item.pathUrl, "_self");
+        }, 200);
+        //要清除掉事件
+        this.removeEventListener("load", arguments.call, false);
+      },
+      false
+    );
 };
 </script>
 
 <template>
+  <h2>
+    {{ userName }}<button type="button" @click="changeName">count ++</button>
+  </h2>
   <div class="app-list">
     <div
       class="app-item"
