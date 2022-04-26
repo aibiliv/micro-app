@@ -50,14 +50,16 @@ const jumpUrl = (item: ProjectConfig) => {
   iframe.src = item.pathUrl;
   iframe.style.display = "none";
   const app = document.getElementById("app");
-  app.appendChild(iframe);
+  app && app.appendChild(iframe);
   let myIframe = document.getElementById("myIframe");
   myIframe &&
     myIframe.addEventListener(
       "load",
       function () {
         let data = userName.value;
-        myIframe && myIframe.contentWindow.postMessage(data, item.pathUrl);
+        const icontentWindow =
+          myIframe && (<HTMLIFrameElement>myIframe).contentWindow;
+        icontentWindow && icontentWindow.postMessage(data, item.pathUrl);
         setTimeout(() => {
           window.open(item.pathUrl, "_self");
         }, 200);

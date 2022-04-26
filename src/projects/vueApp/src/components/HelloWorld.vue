@@ -12,20 +12,21 @@ const goFirstScreen = () => {
     import.meta.env.VITE_APP_SYSTEM_PORT
   }/system-web`;
   // window.open( toUrl`, "_self");
-
   let iframe = document.createElement("iframe");
   iframe.id = "myIframe";
   iframe.src = toUrl;
   iframe.style.display = "none";
   const app = document.getElementById("app");
-  app.appendChild(iframe);
+  app && app.appendChild(iframe);
   let myIframe = document.getElementById("myIframe");
   myIframe &&
     myIframe.addEventListener(
       "load",
       function () {
         let data = store.state.user.username;
-        myIframe && myIframe.contentWindow.postMessage(data, toUrl);
+        const icontentWindow =
+          myIframe && (<HTMLIFrameElement>myIframe).contentWindow;
+        icontentWindow && icontentWindow.postMessage(data, toUrl);
         setTimeout(() => {
           window.open(toUrl, "_self");
         }, 200);
@@ -34,16 +35,6 @@ const goFirstScreen = () => {
       },
       false
     );
-  // setTimeout(() => {
-
-  //   if (myIframe) {
-  //     let data = store.state.user.username;
-  //     myIframe.contentWindow.postMessage(data, toUrl);
-  //     setTimeout(() => {
-  //       window.open(toUrl, "_self");
-  //     }, 0);
-  //   }
-  // }, 100);
 };
 </script>
 
