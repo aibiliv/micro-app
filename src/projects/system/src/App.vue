@@ -1,31 +1,25 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useStore } from "vuex";
-
-const store = useStore();
-let userName = computed(() => {
-  return store.state.user.username;
-});
-
-const changeName = () => {
-  let count = store.state.user.username;
-  count++;
-
-  store.commit("user/SET_USERNAME", count);
-};
+import { ref, watch } from "vue";
+import { jumpProject } from "@/utils";
+const whiteList: string[] = ["http://localhost:8081", "http://localhost:8082"];
+// 将iframe传来的消息保存至本地
 window.addEventListener(
   "message",
   (event) => {
-    store.commit("user/SET_USERNAME", event.data);
+    if (!whiteList.includes(event.origin)) return;
+    localStorage.setItem("count", event.data);
   },
   false
 );
-//子应用跳转
+let initCount = ref(Number(localStorage.getItem("count")));
+watch(initCount, (newVal) => localStorage.setItem("count", newVal));
+
 type ProjectConfig = {
   id: number;
   name: string;
   pathUrl: string;
 };
+//子应用列表
 const appList: ProjectConfig[] = [
   {
     id: 1,
@@ -42,45 +36,18 @@ const appList: ProjectConfig[] = [
     }/reactApp-web/`,
   },
 ];
-const jumpUrl = (item: ProjectConfig) => {
-  // window.open(item.pathUrl, "_self");
-
-  let iframe = document.createElement("iframe");
-  iframe.id = "myIframe";
-  iframe.src = item.pathUrl;
-  iframe.style.display = "none";
-  const app = document.getElementById("app");
-  app && app.appendChild(iframe);
-  let myIframe = document.getElementById("myIframe");
-  myIframe &&
-    myIframe.addEventListener(
-      "load",
-      function () {
-        let data = userName.value;
-        const icontentWindow =
-          myIframe && (<HTMLIFrameElement>myIframe).contentWindow;
-        icontentWindow && icontentWindow.postMessage(data, item.pathUrl);
-        setTimeout(() => {
-          window.open(item.pathUrl, "_self");
-        }, 200);
-        //要清除掉事件
-        this.removeEventListener("load", arguments.call, false);
-      },
-      false
-    );
-};
 </script>
 
 <template>
   <h2>
-    {{ userName }}<button type="button" @click="changeName">count ++</button>
+    {{ initCount }}<button type="button" @click="initCount++">count ++</button>
   </h2>
   <div class="app-list">
     <div
       class="app-item"
       v-for="item in appList"
       :key="item.id"
-      @click="jumpUrl(item)"
+      @click="jumpProject({ toUrl: item.pathUrl, postData: initCount })"
     >
       {{ item.name }}
     </div>

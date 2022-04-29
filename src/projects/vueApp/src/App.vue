@@ -1,36 +1,28 @@
 <script setup lang="ts">
-import { useStore } from "vuex";
-import { ref, computed } from "vue";
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
+import { ref, watch } from "vue";
+import { jumpProject } from "@/utils";
 import HelloWorld from "./components/HelloWorld.vue";
-const store = useStore();
-
-let userName = computed(() => {
-  return store.state.user.username;
-});
-const changeName = () => {
-  let count = store.state.user.username;
-  count++;
-  store.commit("user/SET_USERNAME", count);
-};
-
+const whiteList: string[] = ["http://localhost:8080"];
 window.addEventListener(
   "message",
   (event) => {
-    console.log("event", event.data);
-    store.commit("user/SET_USERNAME", event.data);
-    console.log("store.state.user.username", userName);
+    if (!whiteList.includes(event.origin)) return;
+    localStorage.setItem("count", event.data);
   },
   false
 );
+let initCount = ref(Number(localStorage.getItem("count")));
+watch(initCount, (newVal) => localStorage.setItem("count", newVal));
 </script>
 
 <template>
   <img alt="Vue logo" src="./assets/logo.png" />
   <h2>子应用1</h2>
-  <h2>{{ userName }}</h2>
-  <button type="button" @click="changeName">count ++</button>
+  <h2>{{ initCount }}</h2>
+  <button type="button" @click="initCount++">count ++</button>
+  <button type="button" @click="jumpProject({ postData: initCount })">
+    返回首屏
+  </button>
   <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />
 </template>
 

@@ -1,14 +1,21 @@
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import logo from './logo.svg'
 import './App.css'
-
+import { jumpProject } from "@/utils";
+const whiteList = ["http://localhost:8080"];
 function App() {
-  const [count, setCount] = useState(0)
-  const goFirstScreen = () => {
-    window.location.href = `http://${window.location.hostname}:${
-      import.meta.env.VITE_APP_SYSTEM_PORT
-    }`;
-  };
+  window.addEventListener(
+    "message",
+    (event) => {
+      if (!whiteList.includes(event.origin)) return;
+      localStorage.setItem("count", event.data);
+    },
+    false
+  );
+  const [count, setCount] = useState(Number(localStorage.getItem("count")))
+  useEffect(()=>{
+    localStorage.setItem("count", count);
+  },[count])
   return (
     <div className="App">
       <header className="App-header">
@@ -18,7 +25,7 @@ function App() {
           <button type="button" onClick={() => setCount((count) => count + 1)}>
             count is: {count}
           </button>
-          <button type="button" onClick={() => goFirstScreen()}>
+          <button type="button" onClick={() => jumpProject({postData:count})}>
             返回首屏
           </button>
         </p>
